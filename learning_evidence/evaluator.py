@@ -9,6 +9,7 @@ from learning_evidence.warehouse.cohort_store import Repository
 from learning_evidence.rollout.scale_gates import advance_for_outcome, decide
 from learning_evidence.publication.scorecard import export_bundle, verify_bundle
 from learning_evidence.impact_analysis.bias_adjustment import derive_context
+from learning_evidence.impact_analysis.staged_rollout import analyze as analyze_staged_rollout
 from learning_evidence.rollout.scale_reviews import ScaleReviews
 
 
@@ -65,6 +66,10 @@ class Application:
                   "cohort_card": card}
         self.repository.finish_run(run_id, result)
         return result
+
+    def staged_analysis(self, records=None, config=None) -> dict[str, Any]:
+        source = self.repository.list_records() if records is None else list(records)
+        return analyze_staged_rollout(source, config)
 
     def inspect(self) -> dict[str, Any]:
         return {"snapshot": self.repository.snapshot(), "records": [record.__dict__ for record in self.repository.list_records()],
